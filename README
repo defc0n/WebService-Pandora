@@ -1,4 +1,4 @@
-WebService-FileCloud
+WebService-Pandora
 ====================
 
 This Perl module is used to interact with the Pandora JSON webservice API.  In order
