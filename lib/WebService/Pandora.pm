@@ -6,6 +6,8 @@ use warnings;
 use JSON;
 use HTTP::Request;
 use LWP::UserAgent;
+use Crypt::ECB;
+use Data::Dumper;
 
 our $VERSION = '0.1';
 
@@ -20,11 +22,24 @@ sub new {
     $class = $caller if ( !$class );
 
     my $self = {'timeout' => undef,
+		'encryption_key' => undef,
+		'decryption_key' => undef,
                 'error' => '',
                 @_};
 
+    # create and store LWP object
     $self->{'ua'} = LWP::UserAgent->new( timeout => $self->{'timeout'} );
+
+    # create and store JSON object
     $self->{'json'} = JSON->new();
+
+    # create and store cryptor object
+    my $cryptor = Crypt::ECB->new();
+
+    $cryptor->padding( PADDING_AUTO );
+    $cryptor->cipher( 'Blowfish' );
+
+    $self->{'cryptor'} = $cryptor;
 
     bless( $self, $class );
 
@@ -73,7 +88,15 @@ sub partnerLogin {
 	return;
     }
 
-    return $self->{'json'}->decode( $response->decoded_content() );
+    my $result = $self->{'json'}->decode( $response->decoded_content() );
+
+    # decrypt and skip first 4 bytes/characters of the syncTime
+    if ( defined( $result->{'result'}{'syncTime'} ) ) {
+
+	$result->{'result'}{'syncTime'} = substr( $self->decrypt( $result->{'result'}{'syncTime'} ), 4);
+    }
+
+    return $result;
 }
 
 sub userLogin {
@@ -82,23 +105,23 @@ sub userLogin {
 
     my $username = $args{'username'};
     my $password = $args{'password'};
-    my $partner_id = $args{'partner_id'};
-    my $user_id = $args{'user_id'},
     my $partnerAuthToken = $args{'partnerAuthToken'};
+    my $partner_id = $args{'partner_id'};
+    my $syncTime = $args{'syncTime'};
 
     # make sure all required arguments given
     if ( !defined( $username ) ||
 	 !defined( $password ) ||
+	 !defined( $partnerAuthToken ) ||
 	 !defined( $partner_id ) ||
-	 #!defined( $user_id ) ||
-	 !defined( $partnerAuthToken ) ) {
+	 !defined( $syncTime ) ) {
 
-	$self->{'error'} = 'username, password, partner_id, and partnerAuthToken must all be provided.';
+	$self->{'error'} = 'username, password, partnerAuthToken, partner_id, and syncTime must all be provided.';
 	return;
     }
 
     # create our POST request
-    my $url = WEBSERVICE_URL . "?method=auth.userLogin&partner_id=20";
+    my $url = WEBSERVICE_URL . "?method=auth.userLogin&partner_id=$partner_id&auth_token=$partnerAuthToken";
     my $request = HTTP::Request->new( 'POST' => $url );
 
     # craft the JSON data for the request
@@ -113,11 +136,12 @@ sub userLogin {
 					 'includeStationArtUrl' => JSON::true,
 					 'returnGenreStations' => JSON::true,
 					 'includeDemographics' => JSON::true,
-					 'returnCapped' => JSON::true} );
+					 'returnCapped' => JSON::true,
+					 'syncTime' => $syncTime} );
 
     # set the header and content of the request
     $request->header( 'Content-Type' => 'application/json' );
-    $request->content( $json );
+    $request->content( $self->encrypt( $json ) );
 
     # issue the request
     my $response = $self->{'ua'}->request( $request );
@@ -133,10 +157,28 @@ sub userLogin {
 }
 
 sub error {
-
+    
     my ( $self ) = @_;
-
+    
     return $self->{'error'};
+}
+
+sub encrypt {
+
+    my ( $self, $data ) = @_;
+
+    $self->{'cryptor'}->key( $self->{'encryption_key'} );
+
+    return $self->{'cryptor'}->encrypt_hex( $data );
+}
+
+sub decrypt {
+
+    my ( $self, $data ) = @_;
+
+    $self->{'cryptor'}->key( $self->{'decryption_key'} );
+
+    return $self->{'cryptor'}->decrypt_hex( $data );
 }
 
 1;
