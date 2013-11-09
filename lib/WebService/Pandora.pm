@@ -7,11 +7,12 @@ use JSON;
 use HTTP::Request;
 use LWP::UserAgent;
 use Crypt::ECB;
+use URI::Escape;
 use Data::Dumper;
 
 our $VERSION = '0.1';
 
-use constant WEBSERVICE_URL => 'https://tuner.pandora.com/services/json/';
+use constant WEBSERVICE_URL => 'tuner.pandora.com/services/json/';
 use constant WEBSERVICE_VERSION => "5";
 
 sub new {
@@ -64,7 +65,9 @@ sub partnerLogin {
     }
 
     # create our POST request
-    my $url = WEBSERVICE_URL . "?method=auth.partnerLogin";
+    my $url = $self->request_url( params => {'method' => "auth.partnerLogin"},
+				  ssl => 1 );
+
     my $request = HTTP::Request->new( 'POST' => $url );
 
     # craft the JSON data for the request
@@ -120,8 +123,12 @@ sub userLogin {
 	return;
     }
 
-    # create our POST request
-    my $url = WEBSERVICE_URL . "?method=auth.userLogin&partner_id=$partner_id&auth_token=$partnerAuthToken";
+    # create our POST reques
+    my $url = $self->request_url( ssl => 1,
+				  params => {'method' => "auth.userLogin",
+					     'partner_id' => $partner_id,
+					     'auth_token' => $partnerAuthToken} );
+				  
     my $request = HTTP::Request->new( 'POST' => $url );
 
     # craft the JSON data for the request
@@ -156,6 +163,56 @@ sub userLogin {
     return $self->{'json'}->decode( $response->decoded_content() );
 }
 
+sub getStationList {
+
+    my ( $self, %args ) = @_;
+
+    my $partner_id = $args{'partner_id'};
+    my $user_id = $args{'user_id'};
+    my $userAuthToken = $args{'userAuthToken'};
+    my $syncTime = $args{'syncTime'};
+
+    # make sure all required arguments given
+    if ( !defined( $user_id ) ||
+         !defined( $userAuthToken ) ||
+         !defined( $partner_id ) ||
+         !defined( $syncTime ) ) {
+
+        $self->{'error'} = 'user_id, userAuthToken, partner_id, and syncTime must all be provided.';
+	return;
+    }
+
+    # create our POST request
+    my $url = $self->request_url( ssl => 0,
+				  params => {'method' => "user.getStationList",
+					     'partner_id' => $partner_id,
+					     'auth_token' => $userAuthToken,
+					     'user_id' => $user_id } );
+
+    my $request = HTTP::Request->new( 'POST' => $url );
+
+    # craft the JSON data for the request
+    my $json = $self->{'json'}->encode( {'includeStationArtUrl' => JSON::true,
+                                         'userAuthToken' => $userAuthToken,
+                                         'syncTime' => $syncTime} );
+
+    # set the header and content of the request
+    $request->header( 'Content-Type' => 'application/json' );
+    $request->content( $self->encrypt( $json ) );
+
+    # issue the request
+    my $response = $self->{'ua'}->request( $request );
+
+    # detect error issuing request
+    if ( !$response->is_success() ) {
+
+        $self->{'error'} = $response->status_line();
+	return;
+    }
+
+    return $self->{'json'}->decode( $response->decoded_content() );
+}
+
 sub error {
     
     my ( $self ) = @_;
@@ -179,6 +236,31 @@ sub decrypt {
     $self->{'cryptor'}->key( $self->{'decryption_key'} );
 
     return $self->{'cryptor'}->decrypt_hex( $data );
+}
+
+sub request_url {
+
+    my ( $self, %args ) = @_;
+
+    my $ssl = $args{'ssl'};
+    my $params = $args{'params'};
+
+    my $protocol = 'http://';
+
+    $protocol = 'https://' if ( $ssl );
+
+    my $url = $protocol . WEBSERVICE_URL . "?";
+
+    my @params;
+
+    while ( my ( $arg, $value ) = each( %$params ) ) {
+
+	push( @params, uri_escape( $arg ) . "=" . uri_escape( $value ) );
+    }
+
+    $url .= join( "&", @params );
+
+    return $url;
 }
 
 1;
