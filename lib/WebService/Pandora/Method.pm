@@ -7,7 +7,7 @@ use WebService::Pandora::Cryptor;
 
 use URI;
 use JSON;
-use HTTP::Request::Common;
+use HTTP::Request;
 use LWP::UserAgent;
 use Data::Dumper;
 
