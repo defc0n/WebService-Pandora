@@ -3,10 +3,13 @@ package WebService::Pandora;
 use strict;
 use warnings;
 
+use WebService::Pandora::Method;
+use WebService::Pandora::Cryptor;
+use WebService::Pandora::Partner::iOS;
+
 use JSON;
 use HTTP::Request;
 use LWP::UserAgent;
-use Crypt::ECB;
 use URI::Escape;
 use Data::Dumper;
 
@@ -22,24 +25,21 @@ sub new {
     my $class = ref( $caller );
     $class = $caller if ( !$class );
 
-    my $self = {'timeout' => undef,
-                'encryption_key' => undef,
-                'decryption_key' => undef,
-                'error' => '',
+    my $self = {'username' => undef,
+		'password' => undef,
+		'timeout' => undef,
+		'partner' => undef,
                 @_};
 
-    # create and store LWP object
-    $self->{'ua'} = LWP::UserAgent->new( timeout => $self->{'timeout'} );
+    # be nice and default to iOS partner if one wasn't given..
+    if ( !defined( $self->{'partner'} ) ) {
 
-    # create and store JSON object
-    $self->{'json'} = JSON->new();
+	$self->{'partner'} = WebService::Pandora::Partner::iOS->new();
+    }
 
-    # create and store cryptor object
-    my $cryptor = Crypt::ECB->new();
-
-    $cryptor->padding( PADDING_AUTO );
-    $cryptor->cipher( 'Blowfish' );
-
+    # create and store cryptor object, using the partner's encryption keys
+    my $cryptor = WebService::Pandora::Cryptor->new( decryption_key => $self->{'partner'}->decryption_key(),
+						     encryption_key => $self->{'partner'}->encryption_key() );
     $self->{'cryptor'} = $cryptor;
 
     bless( $self, $class );
@@ -47,170 +47,87 @@ sub new {
     return $self;
 }
 
-sub partnerLogin {
+sub login {
 
-    my ( $self, %args ) = @_;
+    my ( $self ) = @_;
 
-    my $username = $args{'username'};
-    my $password = $args{'password'};
-    my $deviceModel = $args{'deviceModel'};
+    # first, do the partner login
+    my $ret = $self->{'partner'}->login();
 
-    # make sure all required arguments given
-    if ( !defined( $username ) ||
-         !defined( $password ) ||
-         !defined( $deviceModel ) ) {
+    # detect error
+    if ( !$ret ) {
 
-        $self->{'error'} = 'username, password, and deviceModel must all be provided.';
-        return;
+	# return the error message from the partner
+	$self->error( $self->{'partner'}->error() );
+	return;
     }
 
-    # create our POST request
-    my $url = $self->request_url( params => {'method' => "auth.partnerLogin"},
-                                  ssl => 1 );
+    # store the important attributes we got back as we'll need them later
+    $self->{'partner_auth_token'} = $ret->{'partner_auth_token'};
+    $self->{'partner_id'} = $ret->{'partner_id'};
+    $self->{'sync_time'} = $ret->{'sync_time'};
 
-    my $request = HTTP::Request->new( 'POST' => $url );
+    # handle special case of decrypting the sync time
+    $self->{'sync_time'} = $self->{'cryptor'}->decrypt( $self->{'sync_time'} );
+    $self->{'sync_time'} = substr( $self->{'sync_time'}, 4 );
 
-    # craft the JSON data for the request
-    my $json = $self->{'json'}->encode( {'username' => $username,
-                                         'password' => $password,
-                                         'deviceModel' => $deviceModel,
-                                         'version' => WEBSERVICE_VERSION,
-                                         'includeUrls' => JSON::true} );
+    # now create and execute the method for the user login request
+    my $method = WebService::Pandora::Method->new( name => 'auth.userLogin',
+						   partner_auth_token => $self->{'partner_auth_token'},
+						   partner_id => $self->{'partner_id'},
+						   sync_time => $self->{'sync_time'},
+						   host => $self->{'partner'}->host(),
+						   ssl => 1,
+						   encrypt => 1,
+						   cryptor => $self->{'cryptor'},
+						   params => {'loginType' => 'user',
+							      'username' => $self->{'username'},
+							      'password' => $self->{'password'},
+							      'partnerAuthToken' => $self->{'partner_auth_token'}} );
 
-    # set the header and content of the request
-    $request->header( 'Content-Type' => 'application/json' );
-    $request->content( $json );
+    $ret = $method->execute();
+    
+    # detect error
+    if ( !$ret ) {
 
-    # issue the request
-    my $response = $self->{'ua'}->request( $request );
-
-    # detect error issuing request
-    if ( !$response->is_success() ) {
-
-        $self->{'error'} = $response->status_line();
-        return;
+	$self->error( $method->error() );
+	return;
     }
 
-    my $result = $self->{'json'}->decode( $response->decoded_content() );
+    # store even more attributes we'll need later
+    $self->{'user_id'} = $ret->{'userId'};
+    $self->{'user_auth_token'} = $ret->{'userAuthToken'};
 
-    # decrypt and skip first 4 bytes/characters of the syncTime
-    if ( defined( $result->{'result'}{'syncTime'} ) ) {
-
-        $result->{'result'}{'syncTime'} = substr( $self->decrypt( $result->{'result'}{'syncTime'} ), 4);
-    }
-
-    return $result;
+    # success
+    return 1;
 }
 
-sub userLogin {
+sub get_station_list {
 
     my ( $self, %args ) = @_;
 
-    my $username = $args{'username'};
-    my $password = $args{'password'};
-    my $partnerAuthToken = $args{'partnerAuthToken'};
-    my $partner_id = $args{'partner_id'};
-    my $syncTime = $args{'syncTime'};
+    # create the user.getStationList method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.getStationList',
+						   partner_auth_token => $self->{'partner_auth_token'},
+						   user_auth_token => $self->{'user_auth_token'},
+						   partner_id => $self->{'partner_id'},
+						   user_id => $self->{'user_id'},
+						   sync_time => $self->{'sync_time'},
+						   host => $self->{'partner'}->host(),
+						   ssl => 0,
+						   encrypt => 1,
+						   cryptor => $self->{'cryptor'},
+						   params => {} );
 
-    # make sure all required arguments given
-    if ( !defined( $username ) ||
-         !defined( $password ) ||
-         !defined( $partnerAuthToken ) ||
-         !defined( $partner_id ) ||
-         !defined( $syncTime ) ) {
+    my $ret = $method->execute();
 
-        $self->{'error'} = 'username, password, partnerAuthToken, partner_id, and syncTime must all be provided.';
-        return;
+    if ( !$ret ) {
+
+	$self->error( $method->error() );
+	return;
     }
 
-    # create our POST reques
-    my $url = $self->request_url( ssl => 1,
-                                  params => {'method' => "auth.userLogin",
-                                             'partner_id' => $partner_id,
-                                             'auth_token' => $partnerAuthToken} );
-
-    my $request = HTTP::Request->new( 'POST' => $url );
-
-    # craft the JSON data for the request
-    my $json = $self->{'json'}->encode( {'loginType' => 'user',
-                                         'username' => $username,
-                                         'password' => $password,
-                                         'partnerAuthToken' => $partnerAuthToken,
-                                         'includePandoraOneInfo' => JSON::true,
-                                         'includeSubscriptionExpiration' => JSON::true,
-                                         'includeAdAttributes' => JSON::true,
-                                         'returnStationList' => JSON::true,
-                                         'includeStationArtUrl' => JSON::true,
-                                         'returnGenreStations' => JSON::true,
-                                         'includeDemographics' => JSON::true,
-                                         'returnCapped' => JSON::true,
-                                         'syncTime' => $syncTime} );
-
-    # set the header and content of the request
-    $request->header( 'Content-Type' => 'application/json' );
-    $request->content( $self->encrypt( $json ) );
-
-    # issue the request
-    my $response = $self->{'ua'}->request( $request );
-
-    # detect error issuing request
-    if ( !$response->is_success() ) {
-
-        $self->{'error'} = $response->status_line();
-        return;
-    }
-
-    return $self->{'json'}->decode( $response->decoded_content() );
-}
-
-sub getStationList {
-
-    my ( $self, %args ) = @_;
-
-    my $partner_id = $args{'partner_id'};
-    my $user_id = $args{'user_id'};
-    my $userAuthToken = $args{'userAuthToken'};
-    my $syncTime = $args{'syncTime'};
-
-    # make sure all required arguments given
-    if ( !defined( $user_id ) ||
-         !defined( $userAuthToken ) ||
-         !defined( $partner_id ) ||
-         !defined( $syncTime ) ) {
-
-        $self->{'error'} = 'user_id, userAuthToken, partner_id, and syncTime must all be provided.';
-        return;
-    }
-
-    # create our POST request
-    my $url = $self->request_url( ssl => 0,
-                                  params => {'method' => "user.getStationList",
-                                             'partner_id' => $partner_id,
-                                             'auth_token' => $userAuthToken,
-                                             'user_id' => $user_id } );
-
-    my $request = HTTP::Request->new( 'POST' => $url );
-
-    # craft the JSON data for the request
-    my $json = $self->{'json'}->encode( {'includeStationArtUrl' => JSON::true,
-                                         'userAuthToken' => $userAuthToken,
-                                         'syncTime' => $syncTime} );
-
-    # set the header and content of the request
-    $request->header( 'Content-Type' => 'application/json' );
-    $request->content( $self->encrypt( $json ) );
-
-    # issue the request
-    my $response = $self->{'ua'}->request( $request );
-
-    # detect error issuing request
-    if ( !$response->is_success() ) {
-
-        $self->{'error'} = $response->status_line();
-        return;
-    }
-
-    return $self->{'json'}->decode( $response->decoded_content() );
+    return $ret;
 }
 
 sub getStation {
@@ -268,27 +185,11 @@ sub getStation {
 
 sub error {
 
-    my ( $self ) = @_;
+    my ( $self, $error ) = @_;
+
+    $self->{'error'} = $error if ( defined( $error ) );
 
     return $self->{'error'};
-}
-
-sub encrypt {
-
-    my ( $self, $data ) = @_;
-
-    $self->{'cryptor'}->key( $self->{'encryption_key'} );
-
-    return $self->{'cryptor'}->encrypt_hex( $data );
-}
-
-sub decrypt {
-
-    my ( $self, $data ) = @_;
-
-    $self->{'cryptor'}->key( $self->{'decryption_key'} );
-
-    return $self->{'cryptor'}->decrypt_hex( $data );
 }
 
 sub request_url {
