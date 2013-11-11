@@ -62,8 +62,8 @@ sub new {
     # http or https?
     my $protocol = ( $self->{'ssl'} ) ? 'https://' : 'http://';
 
-    # craft the full URL, protocol + host
-    my $url = $protocol . $self->{'host'};
+    # craft the full URL, protocol + host + path
+    my $url = $protocol . $self->{'host'} . '/services/json/';
 
     # create URI object
     my $uri = URI->new( $url );
