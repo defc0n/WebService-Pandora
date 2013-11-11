@@ -8,12 +8,11 @@ use WebService::Pandora::Cryptor;
 use WebService::Pandora::Partner::iOS;
 
 use JSON;
-use HTTP::Request;
-use LWP::UserAgent;
-use URI::Escape;
 use Data::Dumper;
 
 our $VERSION = '0.1';
+
+### constructor ###
 
 sub new {
 
@@ -24,7 +23,7 @@ sub new {
 
     my $self = {'username' => undef,
 		'password' => undef,
-		'timeout' => undef,
+		'timeout' => 10,
 		'partner' => undef,
                 @_};
 
@@ -43,6 +42,8 @@ sub new {
 
     return $self;
 }
+
+### public methods ###
 
 sub login {
 
@@ -77,6 +78,7 @@ sub login {
 						   ssl => 1,
 						   encrypt => 1,
 						   cryptor => $self->{'cryptor'},
+						   timeout => $self->{'timeout'},
 						   params => {'loginType' => 'user',
 							      'username' => $self->{'username'},
 							      'password' => $self->{'password'},
@@ -114,6 +116,7 @@ sub get_station_list {
 						   ssl => 0,
 						   encrypt => 1,
 						   cryptor => $self->{'cryptor'},
+						   timeout => $self->{'timeout'},
 						   params => {} );
 
     my $ret = $method->execute();
@@ -148,6 +151,7 @@ sub get_station {
 						   ssl => 0,
 						   encrypt => 1,
 						   cryptor => $self->{'cryptor'},
+						   timeout => $self->{'timeout'},
 						   params => {'stationToken' => $station_token,
 							      'includeExtendedAttributes' => $include_extended_attributes} );
 

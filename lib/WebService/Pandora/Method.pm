@@ -28,6 +28,7 @@ sub new {
                 'ssl' => 0,
 		'encrypt' => 1,
 		'cryptor' => undef,
+		'timeout' => 10,
 		'params' => {},
                 @_};
 
@@ -107,7 +108,7 @@ sub new {
     $self->{'request'} = $request;
 
     # create and store user agent object
-    $self->{'ua'} = LWP::UserAgent->new();
+    $self->{'ua'} = LWP::UserAgent->new( timeout => $self->{'timeout'} );
 
     return $self;
 }
