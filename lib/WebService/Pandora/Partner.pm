@@ -118,10 +118,7 @@ sub login {
 	return;
     }
 
-    # return important attributes we care about
-    return {'partner_auth_token' => $result->{'partnerAuthToken'},
-	    'partner_id' => $result->{'partnerId'},
-	    'sync_time' => $result->{'syncTime'}};
+    return $result;
 }
 
 1;

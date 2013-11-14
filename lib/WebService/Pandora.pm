@@ -61,9 +61,9 @@ sub login {
     }
 
     # store the important attributes we got back as we'll need them later
-    $self->{'partner_auth_token'} = $ret->{'partner_auth_token'};
-    $self->{'partner_id'} = $ret->{'partner_id'};
-    $self->{'sync_time'} = $ret->{'sync_time'};
+    $self->{'partner_auth_token'} = $ret->{'partnerAuthToken'};
+    $self->{'partner_id'} = $ret->{'partnerId'};
+    $self->{'sync_time'} = $ret->{'syncTime'};
 
     # handle special case of decrypting the sync time
     $self->{'sync_time'} = $self->{'cryptor'}->decrypt( $self->{'sync_time'} );
@@ -184,6 +184,37 @@ sub search {
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
                                                    params => {'searchText' => $search_text} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub get_playlist {
+
+    my ( $self, %args ) = @_;
+
+    my $station_token = $args{'station_token'};
+
+    # create the station.getPlaylist method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.getPlaylist',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'stationToken' => $station_token} );
 
     my $ret = $method->execute();
 
