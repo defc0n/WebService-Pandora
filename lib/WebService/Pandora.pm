@@ -101,6 +101,35 @@ sub login {
     return 1;
 }
 
+sub get_bookmarks {
+
+    my ( $self ) = @_;
+
+    # create the user.getBookmarks method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.getBookmarks',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;    
+}
+
 sub get_station_list {
 
     my ( $self, %args ) = @_;
@@ -531,6 +560,37 @@ sub delete_station {
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
                                                    params => {'stationToken' => $station_token} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub sleep_song {
+
+    my ( $self, %args ) = @_;
+
+    my $track_token = $args{'track_token'};
+
+    # create the user.sleepSong method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.sleepSong',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'trackToken' => $track_token} );
 
     my $ret = $method->execute();
 
