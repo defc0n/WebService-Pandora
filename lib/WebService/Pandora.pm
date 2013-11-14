@@ -139,7 +139,6 @@ sub get_station {
 
     $include_extended_attributes = ( $include_extended_attributes ) ? JSON::true() : JSON::false();
 
-
     # create the user.getStation method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.getStation',
 						   partner_auth_token => $self->{'partner_auth_token'},
@@ -161,6 +160,37 @@ sub get_station {
 
 	$self->error( $method->error() );
 	return;
+    }
+
+    return $ret;
+}
+
+sub search {
+
+    my ( $self, %args ) = @_;
+
+    my $search_text = $args{'search_text'};
+
+    # create the music.search method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'music.search',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'searchText' => $search_text} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
     }
 
     return $ret;
