@@ -355,6 +355,101 @@ sub add_feedback {
     return $ret;
 }
 
+sub add_music {
+
+    my ( $self, %args ) = @_;
+
+    my $music_token = $args{'music_token'};
+    my $station_token = $args{'station_token'};
+
+    # create the station.addMusic method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.addMusic',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'musicToken' => $music_token,
+							      'stationToken' => $station_token} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub create_station {
+
+    my ( $self, %args ) = @_;
+
+    my $music_token = $args{'music_token'};
+    my $track_token = $args{'track_token'};
+    my $music_type = $args{'music_type'};
+
+    my $params = {};
+
+    # did they specify a music token, obtained via search?
+    if ( defined( $music_token ) ) {
+
+	$params->{'musicToken'} = $music_token;
+    }
+
+    # did they specify a track token, provided from a playlist?
+    elsif ( defined( $track_token ) ) {
+
+	# make sure they also specific either song or artist type
+	if ( !defined( $music_type ) ) {
+
+	    $self->error( "music_type must be specified (either 'song' or 'artist') when supplying a track token." );
+	    return;
+	}
+
+	$params->{'trackToken'} = $track_token;
+	$params->{'musicType'} = $music_type;
+    }
+
+    # they didn't specify either
+    else {
+
+	$self->error( "either music_token or track_token must be provided." );
+	return;
+    }
+
+    # create the station.createStation method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.createStation',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => $params );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub error {
 
     my ( $self, $error ) = @_;
