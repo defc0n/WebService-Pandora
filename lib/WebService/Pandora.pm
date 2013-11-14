@@ -258,6 +258,103 @@ sub explain_track {
     return $ret;
 }
 
+sub add_artist_bookmark {
+
+    my ( $self, %args ) = @_;
+
+    my $track_token = $args{'track_token'};
+
+    # create the bookmark.addArtistBookmark method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'bookmark.addArtistBookmark',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'trackToken' => $track_token} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub add_song_bookmark {
+
+    my ( $self, %args ) = @_;
+
+    my $track_token = $args{'track_token'};
+
+    # create the bookmark.addSongBookmark method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'bookmark.addSongBookmark',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'trackToken' => $track_token} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub add_feedback {
+
+    my ( $self, %args ) = @_;
+
+    my $track_token = $args{'track_token'};
+    my $is_positive = $args{'is_positive'};
+
+    $is_positive = ( $is_positive ) ? JSON::true() : JSON::false();
+
+    # create the station.addFeedback method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.addFeedback',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'trackToken' => $track_token,
+							      'isPositive' => $is_positive} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub error {
 
     my ( $self, $error ) = @_;
