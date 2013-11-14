@@ -355,6 +355,37 @@ sub add_feedback {
     return $ret;
 }
 
+sub delete_feedback {
+
+    my ( $self, %args ) = @_;
+
+    my $feedback_id = $args{'feedback_id'};
+
+    # create the station.deleteFeedback method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.deleteFeedback',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'feedbackId' => $feedback_id} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub add_music {
 
     my ( $self, %args ) = @_;
@@ -376,6 +407,37 @@ sub add_music {
                                                    timeout => $self->{'timeout'},
                                                    params => {'musicToken' => $music_token,
 							      'stationToken' => $station_token} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub delete_music {
+
+    my ( $self, %args ) = @_;
+
+    my $seed_id = $args{'seed_id'};
+
+    # create the station.deleteMusic method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.deleteMusic',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'seedId' => $seed_id} );
 
     my $ret = $method->execute();
 
@@ -438,6 +500,37 @@ sub create_station {
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
                                                    params => $params );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub delete_station {
+
+    my ( $self, %args ) = @_;
+
+    my $station_token = $args{'station_token'};
+
+    # create the station.deleteStation method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.deleteStation',
+                                                   partner_auth_token => $self->{'partner_auth_token'},
+                                                   user_auth_token => $self->{'user_auth_token'},
+                                                   partner_id => $self->{'partner_id'},
+                                                   user_id => $self->{'user_id'},
+                                                   sync_time => $self->{'sync_time'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'stationToken' => $station_token} );
 
     my $ret = $method->execute();
 

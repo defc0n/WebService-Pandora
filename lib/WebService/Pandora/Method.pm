@@ -138,8 +138,11 @@ sub execute {
 	return;
     }
 
-    # return all result data
-    return $json_data->{'result'};
+    # return all result data, if any exists
+    return $json_data->{'result'} if ( defined( $json_data->{'result'} ) );
+
+    # otherwise just return a true value to indicate success
+    return 1;
 }
 
 sub error {
