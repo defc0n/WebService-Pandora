@@ -19,11 +19,11 @@ sub new {
     $class = $caller if ( !$class );
 
     my $self = {'name' => undef,
-		'partner_auth_token' => undef,
-		'user_auth_token' => undef,
-		'partner_id' => undef,
-		'user_id' => undef,
-		'sync_time' => undef,
+		'partnerAuthToken' => undef,
+		'userAuthToken' => undef,
+		'partnerId' => undef,
+		'userId' => undef,
+		'syncTime' => undef,
 		'host' => undef,
                 'ssl' => 0,
 		'encrypt' => 1,
@@ -37,24 +37,24 @@ sub new {
     # craft the json data accordingly
     my $json_data = {};
 
-    if ( defined( $self->{'user_auth_token'} ) ) {
+    if ( defined( $self->{'userAuthToken'} ) ) {
 
-	$json_data->{'userAuthToken'} = $self->{'user_auth_token'};
+	$json_data->{'userAuthToken'} = $self->{'userAuthToken'};
     }
 
-    if ( defined( $self->{'sync_time'} ) ) {
+    if ( defined( $self->{'syncTime'} ) ) {
 
-	$json_data->{'syncTime'} = int( $self->{'sync_time'} );
+	$json_data->{'syncTime'} = int( $self->{'syncTime'} );
     }
 
-    # merge the two
+    # merge the two required params with the additional user-supplied args
     $json_data = {%$json_data, %{$self->{'params'}}};
 
     # encode it to json
     $self->{'json'} = JSON->new();
     $json_data = $self->{'json'}->encode( $json_data );
 
-    # encrypt it if needed
+    # encrypt it, if needed
     if ( $self->{'encrypt'} ) {
 	
 	$json_data = $self->{'cryptor'}->encrypt( $json_data );
@@ -73,27 +73,27 @@ sub new {
     my $url_params = ['method' => $self->{'name'}];
 
     # set user_auth_token if provided
-    if ( defined( $self->{'user_auth_token'} ) ) {
+    if ( defined( $self->{'userAuthToken'} ) ) {
 
-	push( @$url_params, 'auth_token' => $self->{'user_auth_token'} );
+	push( @$url_params, 'auth_token' => $self->{'userAuthToken'} );
     }
 
     # set partner_auth_token if provided and user_auth_token was not
-    elsif ( defined( $self->{'partner_auth_token'} ) ) {
+    elsif ( defined( $self->{'partnerAuthToken'} ) ) {
 
-	push( @$url_params, 'auth_token' => $self->{'partner_auth_token'} );
+	push( @$url_params, 'auth_token' => $self->{'partnerAuthToken'} );
     }
 
     # set partner_id if provided
-    if ( defined( $self->{'partner_id'} ) ) {
+    if ( defined( $self->{'partnerId'} ) ) {
 
-	push( @$url_params, 'partner_id' => $self->{'partner_id'} );
+	push( @$url_params, 'partner_id' => $self->{'partnerId'} );
     }
 
     # set user_id if provided
-    if ( defined( $self->{'user_id'} ) ) {
+    if ( defined( $self->{'userId'} ) ) {
 
-	push( @$url_params, 'user_id' => $self->{'user_id'} );
+	push( @$url_params, 'user_id' => $self->{'userId'} );
     }    
 
     # add the params to the URI

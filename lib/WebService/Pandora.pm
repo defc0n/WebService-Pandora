@@ -61,19 +61,19 @@ sub login {
     }
 
     # store the important attributes we got back as we'll need them later
-    $self->{'partner_auth_token'} = $ret->{'partnerAuthToken'};
-    $self->{'partner_id'} = $ret->{'partnerId'};
-    $self->{'sync_time'} = $ret->{'syncTime'};
+    $self->{'partnerAuthToken'} = $ret->{'partnerAuthToken'};
+    $self->{'partnerId'} = $ret->{'partnerId'};
+    $self->{'syncTime'} = $ret->{'syncTime'};
 
     # handle special case of decrypting the sync time
-    $self->{'sync_time'} = $self->{'cryptor'}->decrypt( $self->{'sync_time'} );
-    $self->{'sync_time'} = substr( $self->{'sync_time'}, 4 );
+    $self->{'syncTime'} = $self->{'cryptor'}->decrypt( $self->{'syncTime'} );
+    $self->{'syncTime'} = substr( $self->{'syncTime'}, 4 );
 
     # now create and execute the method for the user login request
     my $method = WebService::Pandora::Method->new( name => 'auth.userLogin',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 1,
                                                    encrypt => 1,
@@ -82,7 +82,7 @@ sub login {
                                                    params => {'loginType' => 'user',
                                                               'username' => $self->{'username'},
                                                               'password' => $self->{'password'},
-                                                              'partnerAuthToken' => $self->{'partner_auth_token'}} );
+                                                              'partnerAuthToken' => $self->{'partnerAuthToken'}} );
 
     $ret = $method->execute();
 
@@ -94,53 +94,24 @@ sub login {
     }
 
     # store even more attributes we'll need later
-    $self->{'user_id'} = $ret->{'userId'};
-    $self->{'user_auth_token'} = $ret->{'userAuthToken'};
+    $self->{'userId'} = $ret->{'userId'};
+    $self->{'userAuthToken'} = $ret->{'userAuthToken'};
 
     # success
     return 1;
 }
 
-sub get_bookmarks {
+sub getBookmarks {
 
     my ( $self ) = @_;
 
     # create the user.getBookmarks method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'user.getBookmarks',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
-                                                   host => $self->{'partner'}->host(),
-                                                   ssl => 0,
-                                                   encrypt => 1,
-                                                   cryptor => $self->{'cryptor'},
-                                                   timeout => $self->{'timeout'},
-                                                   params => {} );
-
-    my $ret = $method->execute();
-
-    if ( !$ret ) {
-
-        $self->error( $method->error() );
-        return;
-    }
-
-    return $ret;    
-}
-
-sub get_station_list {
-
-    my ( $self, %args ) = @_;
-
-    # create the user.getStationList method w/ appropriate params
-    my $method = WebService::Pandora::Method->new( name => 'user.getStationList',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
@@ -159,29 +130,58 @@ sub get_station_list {
     return $ret;
 }
 
-sub get_station {
+sub getStationList {
 
     my ( $self, %args ) = @_;
 
-    my $station_token = $args{'station_token'};
-    my $include_extended_attributes = $args{'include_extended_attributes'};
-
-    $include_extended_attributes = ( $include_extended_attributes ) ? JSON::true() : JSON::false();
-
-    # create the user.getStation method w/ appropriate params
-    my $method = WebService::Pandora::Method->new( name => 'station.getStation',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+    # create the user.getStationList method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.getStationList',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'stationToken' => $station_token,
-                                                              'includeExtendedAttributes' => $include_extended_attributes} );
+                                                   params => {} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
+sub getStation {
+
+    my ( $self, %args ) = @_;
+
+    my $stationToken = $args{'stationToken'};
+    my $includeExtendedAttributes = $args{'includeExtendedAttributes'};
+
+    $includeExtendedAttributes = ( $includeExtendedAttributes ) ? JSON::true() : JSON::false();
+
+    # create the user.getStation method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.getStation',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'stationToken' => $stationToken,
+                                                              'includeExtendedAttributes' => $includeExtendedAttributes} );
 
     my $ret = $method->execute();
 
@@ -198,21 +198,21 @@ sub search {
 
     my ( $self, %args ) = @_;
 
-    my $search_text = $args{'search_text'};
+    my $searchText = $args{'searchText'};
 
     # create the music.search method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'music.search',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'searchText' => $search_text} );
+                                                   params => {'searchText' => $searchText} );
 
     my $ret = $method->execute();
 
@@ -225,25 +225,25 @@ sub search {
     return $ret;
 }
 
-sub get_playlist {
+sub getPlaylist {
 
     my ( $self, %args ) = @_;
 
-    my $station_token = $args{'station_token'};
+    my $stationToken = $args{'stationToken'};
 
     # create the station.getPlaylist method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.getPlaylist',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'stationToken' => $station_token} );
+                                                   params => {'stationToken' => $stationToken} );
 
     my $ret = $method->execute();
 
@@ -256,25 +256,25 @@ sub get_playlist {
     return $ret;
 }
 
-sub explain_track {
+sub explainTrack {
 
     my ( $self, %args ) = @_;
 
-    my $track_token = $args{'track_token'};
+    my $trackToken = $args{'trackToken'};
 
     # create the track.explainTrack method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'track.explainTrack',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'trackToken' => $track_token} );
+                                                   params => {'trackToken' => $trackToken} );
 
     my $ret = $method->execute();
 
@@ -287,25 +287,25 @@ sub explain_track {
     return $ret;
 }
 
-sub add_artist_bookmark {
+sub addArtistBookmark {
 
     my ( $self, %args ) = @_;
 
-    my $track_token = $args{'track_token'};
+    my $trackToken = $args{'trackToken'};
 
     # create the bookmark.addArtistBookmark method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'bookmark.addArtistBookmark',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'trackToken' => $track_token} );
+                                                   params => {'trackToken' => $trackToken} );
 
     my $ret = $method->execute();
 
@@ -318,25 +318,25 @@ sub add_artist_bookmark {
     return $ret;
 }
 
-sub add_song_bookmark {
+sub addSongBookmark {
 
     my ( $self, %args ) = @_;
 
-    my $track_token = $args{'track_token'};
+    my $trackToken = $args{'trackToken'};
 
     # create the bookmark.addSongBookmark method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'bookmark.addSongBookmark',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'trackToken' => $track_token} );
+                                                   params => {'trackToken' => $trackToken} );
 
     my $ret = $method->execute();
 
@@ -349,29 +349,29 @@ sub add_song_bookmark {
     return $ret;
 }
 
-sub add_feedback {
+sub addFeedback {
 
     my ( $self, %args ) = @_;
 
-    my $track_token = $args{'track_token'};
-    my $is_positive = $args{'is_positive'};
+    my $trackToken = $args{'trackToken'};
+    my $isPositive = $args{'isPositive'};
 
-    $is_positive = ( $is_positive ) ? JSON::true() : JSON::false();
+    $isPositive = ( $isPositive ) ? JSON::true() : JSON::false();
 
     # create the station.addFeedback method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.addFeedback',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'trackToken' => $track_token,
-							      'isPositive' => $is_positive} );
+                                                   params => {'trackToken' => $trackToken,
+                                                              'isPositive' => $isPositive} );
 
     my $ret = $method->execute();
 
@@ -384,25 +384,25 @@ sub add_feedback {
     return $ret;
 }
 
-sub delete_feedback {
+sub deleteFeedback {
 
     my ( $self, %args ) = @_;
 
-    my $feedback_id = $args{'feedback_id'};
+    my $feedbackId = $args{'feedbackId'};
 
     # create the station.deleteFeedback method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.deleteFeedback',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'feedbackId' => $feedback_id} );
+                                                   params => {'feedbackId' => $feedbackId} );
 
     my $ret = $method->execute();
 
@@ -415,27 +415,27 @@ sub delete_feedback {
     return $ret;
 }
 
-sub add_music {
+sub addMusic {
 
     my ( $self, %args ) = @_;
 
-    my $music_token = $args{'music_token'};
-    my $station_token = $args{'station_token'};
+    my $musicToken = $args{'musicToken'};
+    my $stationToken = $args{'stationToken'};
 
     # create the station.addMusic method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.addMusic',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'musicToken' => $music_token,
-							      'stationToken' => $station_token} );
+                                                   params => {'musicToken' => $musicToken,
+                                                              'stationToken' => $stationToken} );
 
     my $ret = $method->execute();
 
@@ -448,25 +448,25 @@ sub add_music {
     return $ret;
 }
 
-sub delete_music {
+sub deleteMusic {
 
     my ( $self, %args ) = @_;
 
-    my $seed_id = $args{'seed_id'};
+    my $seedId = $args{'seedId'};
 
     # create the station.deleteMusic method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.deleteMusic',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'seedId' => $seed_id} );
+                                                   params => {'seedId' => $seedId} );
 
     my $ret = $method->execute();
 
@@ -479,50 +479,50 @@ sub delete_music {
     return $ret;
 }
 
-sub create_station {
+sub createStation {
 
     my ( $self, %args ) = @_;
 
-    my $music_token = $args{'music_token'};
-    my $track_token = $args{'track_token'};
-    my $music_type = $args{'music_type'};
+    my $musicToken = $args{'musicToken'};
+    my $trackToken = $args{'trackToken'};
+    my $musicType = $args{'musicType'};
 
     my $params = {};
 
     # did they specify a music token, obtained via search?
-    if ( defined( $music_token ) ) {
+    if ( defined( $musicToken ) ) {
 
-	$params->{'musicToken'} = $music_token;
+        $params->{'musicToken'} = $musicToken;
     }
 
     # did they specify a track token, provided from a playlist?
-    elsif ( defined( $track_token ) ) {
+    elsif ( defined( $trackToken ) ) {
 
-	# make sure they also specific either song or artist type
-	if ( !defined( $music_type ) ) {
+        # make sure they also specific either song or artist type
+        if ( !defined( $musicType ) ) {
 
-	    $self->error( "music_type must be specified (either 'song' or 'artist') when supplying a track token." );
-	    return;
-	}
+            $self->error( "musicType must be specified (either 'song' or 'artist') when supplying a track token." );
+            return;
+        }
 
-	$params->{'trackToken'} = $track_token;
-	$params->{'musicType'} = $music_type;
+        $params->{'trackToken'} = $trackToken;
+        $params->{'musicType'} = $musicType;
     }
 
     # they didn't specify either
     else {
 
-	$self->error( "either music_token or track_token must be provided." );
-	return;
+        $self->error( "either musicToken or trackToken must be provided." );
+        return;
     }
 
     # create the station.createStation method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.createStation',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
@@ -541,25 +541,25 @@ sub create_station {
     return $ret;
 }
 
-sub delete_station {
+sub deleteStation {
 
     my ( $self, %args ) = @_;
 
-    my $station_token = $args{'station_token'};
+    my $stationToken = $args{'stationToken'};
 
     # create the station.deleteStation method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.deleteStation',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'stationToken' => $station_token} );
+                                                   params => {'stationToken' => $stationToken} );
 
     my $ret = $method->execute();
 
@@ -572,25 +572,25 @@ sub delete_station {
     return $ret;
 }
 
-sub sleep_song {
+sub sleepSong {
 
     my ( $self, %args ) = @_;
 
-    my $track_token = $args{'track_token'};
+    my $trackToken = $args{'trackToken'};
 
     # create the user.sleepSong method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'user.sleepSong',
-                                                   partner_auth_token => $self->{'partner_auth_token'},
-                                                   user_auth_token => $self->{'user_auth_token'},
-                                                   partner_id => $self->{'partner_id'},
-                                                   user_id => $self->{'user_id'},
-                                                   sync_time => $self->{'sync_time'},
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
                                                    host => $self->{'partner'}->host(),
                                                    ssl => 0,
                                                    encrypt => 1,
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
-                                                   params => {'trackToken' => $track_token} );
+                                                   params => {'trackToken' => $trackToken} );
 
     my $ret = $method->execute();
 
