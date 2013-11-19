@@ -695,6 +695,35 @@ sub setQuickMix {
     return $ret;
 }
 
+sub canSubscribe {
+
+    my ( $self, %args ) = @_;
+
+    # create the user.canSubscribe method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.canSubscribe',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 1,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub error {
 
     my ( $self, $error ) = @_;

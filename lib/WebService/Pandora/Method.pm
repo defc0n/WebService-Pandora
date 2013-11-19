@@ -94,7 +94,7 @@ sub new {
     if ( defined( $self->{'userId'} ) ) {
 
 	push( @$url_params, 'user_id' => $self->{'userId'} );
-    }    
+    }
 
     # add the params to the URI
     $uri->query_form( $url_params );
