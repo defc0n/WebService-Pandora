@@ -590,7 +590,7 @@ sub renameStation {
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
                                                    params => {'stationToken' => $stationToken,
-							      'stationName' => $stationName} );
+                                                              'stationName' => $stationName} );
 
     my $ret = $method->execute();
 
@@ -624,8 +624,8 @@ sub shareStation {
                                                    cryptor => $self->{'cryptor'},
                                                    timeout => $self->{'timeout'},
                                                    params => {'stationId' => $stationId,
-							      'stationToken' => $stationToken,
-							      'emails' => $emails} );
+                                                              'stationToken' => $stationToken,
+                                                              'emails' => $emails} );
 
     my $ret = $method->execute();
 

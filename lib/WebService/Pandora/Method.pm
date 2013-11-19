@@ -19,17 +19,17 @@ sub new {
     $class = $caller if ( !$class );
 
     my $self = {'name' => undef,
-		'partnerAuthToken' => undef,
-		'userAuthToken' => undef,
-		'partnerId' => undef,
-		'userId' => undef,
-		'syncTime' => undef,
-		'host' => undef,
+                'partnerAuthToken' => undef,
+                'userAuthToken' => undef,
+                'partnerId' => undef,
+                'userId' => undef,
+                'syncTime' => undef,
+                'host' => undef,
                 'ssl' => 0,
-		'encrypt' => 1,
-		'cryptor' => undef,
-		'timeout' => 10,
-		'params' => {},
+                'encrypt' => 1,
+                'cryptor' => undef,
+                'timeout' => 10,
+                'params' => {},
                 @_};
 
     bless( $self, $class );
@@ -39,12 +39,12 @@ sub new {
 
     if ( defined( $self->{'userAuthToken'} ) ) {
 
-	$json_data->{'userAuthToken'} = $self->{'userAuthToken'};
+        $json_data->{'userAuthToken'} = $self->{'userAuthToken'};
     }
 
     if ( defined( $self->{'syncTime'} ) ) {
 
-	$json_data->{'syncTime'} = int( $self->{'syncTime'} );
+        $json_data->{'syncTime'} = int( $self->{'syncTime'} );
     }
 
     # merge the two required params with the additional user-supplied args
@@ -56,8 +56,8 @@ sub new {
 
     # encrypt it, if needed
     if ( $self->{'encrypt'} ) {
-	
-	$json_data = $self->{'cryptor'}->encrypt( $json_data );
+
+        $json_data = $self->{'cryptor'}->encrypt( $json_data );
     }
 
     # http or https?
@@ -75,25 +75,25 @@ sub new {
     # set user_auth_token if provided
     if ( defined( $self->{'userAuthToken'} ) ) {
 
-	push( @$url_params, 'auth_token' => $self->{'userAuthToken'} );
+        push( @$url_params, 'auth_token' => $self->{'userAuthToken'} );
     }
 
     # set partner_auth_token if provided and user_auth_token was not
     elsif ( defined( $self->{'partnerAuthToken'} ) ) {
 
-	push( @$url_params, 'auth_token' => $self->{'partnerAuthToken'} );
+        push( @$url_params, 'auth_token' => $self->{'partnerAuthToken'} );
     }
 
     # set partner_id if provided
     if ( defined( $self->{'partnerId'} ) ) {
 
-	push( @$url_params, 'partner_id' => $self->{'partnerId'} );
+        push( @$url_params, 'partner_id' => $self->{'partnerId'} );
     }
 
     # set user_id if provided
     if ( defined( $self->{'userId'} ) ) {
 
-	push( @$url_params, 'user_id' => $self->{'userId'} );
+        push( @$url_params, 'user_id' => $self->{'userId'} );
     }
 
     # add the params to the URI
@@ -122,8 +122,8 @@ sub execute {
     # handle request error
     if ( !$response->is_success() ) {
 
-	$self->error( $response->status_line() );
-	return;
+        $self->error( $response->status_line() );
+        return;
     }
 
     my $content = $response->decoded_content();
@@ -134,8 +134,8 @@ sub execute {
     # handle pandora error
     if ( $json_data->{'stat'} ne 'ok' ) {
 
-	$self->error( "$self->{'name'} error $json_data->{'code'}: $json_data->{'message'}" );
-	return;
+        $self->error( "$self->{'name'} error $json_data->{'code'}: $json_data->{'message'}" );
+        return;
     }
 
     # return all result data, if any exists

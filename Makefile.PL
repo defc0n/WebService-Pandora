@@ -12,4 +12,7 @@ WriteMakefile( NAME => 'WebService::Pandora',
                              'LWP::UserAgent' => 0,
                              'URI' => 0,
 			     'HTTP::Request' => 0,
-			     'Data::Dumper' => 0} );
+			     'Data::Dumper' => 0},
+	       BUILD_REQUIRES => {'Test::More' => 0,
+				  'Test::Pod' => 0,
+				  'Test::Pod::Coverage' => 0} );

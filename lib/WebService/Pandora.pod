@@ -1,0 +1,85 @@
+=head1 NAME
+
+WebService::Pandora - Pandora WebService API
+
+=head1 SYNOPSIS
+
+  use WebService::Pandora;
+
+  $websvc = WebService::Pandora->new( username => 'emailaddress',
+                                      password => 'password' );
+
+  $websvc->login() or die( $websvc->error() );
+
+  $result = $websvc->getStationList();
+
+  die( $websvc->error() ) if ( !$result );
+
+  $stations = $result->{'stations'};
+
+  foreach $station ( @$stations ) {
+
+    print "stationToken: $station->{'stationToken'}\n";
+  }
+
+  # get a new list of tracks to play from one of my stations
+  $result = $websvc->getPlaylist( stationToken => 'token' );
+
+  die( $websvc->error() if ( !$result );
+
+  $tracks = $result->{'items'};
+
+  foreach $track ( @$tracks ) {
+
+    print "trackToken: $track->{'trackToken'}\n";
+
+    # the URLs of the songs can be found here
+    $urls = $track->{'audioUrlMap'};
+  }
+
+  # this track sucked, thumbs down!
+  $result = $websvc->addFeedback( trackToken => 'token',
+                                  isPositive => 0 );
+
+=head1 DESCRIPTION
+
+B<WebService::Pandora> is a module to communicate with the Pandora (L<http://www.pandora.com>) JSON API.
+The API is not officially published, and has a few oddities, but was reverse engineered and documented at
+L<http://pan-do-ra-api.wikia.com/wiki/Pan-do-ra_API_Wiki>.
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+Creates a new B<WebService::Pandora> object with the arguments given.  The B<username> and B<password>
+arguments are currently required.  The B<partner> option defaults to B<WebService::Pandora::Partner::iOS>,
+but any B<WebService::Pandora::Partner> object may be given.  The B<timeout> option is passed to the
+underlying B<LWP::UserAgent> object, and defaults to 10 (seconds).
+
+  $websvc = WebService::Pandora->new( username => 'emailaddress',
+                                      password => 'password',
+                                      timeout => 10,
+                                      partner => WebService::Pandora::Partner::iOS->new() );
+
+=head1 METHODS
+
+All methods will return a false value if they weren't given the proper arguments, if there was an HTTP
+communication error, or if the Pandora API returned an error.  Use the B<error()> method to get an
+error message describing the failure.
+
+=head2 login
+
+Returns a true or false value if the login was successful.  Internally, this will execute both the
+B<auth.partherLogin> and B<auth.userLogin> API methods.  The provided partner, username, and password
+to the constructor are all used.  This must be called before any other methods will succeed.
+
+=head1 SEE ALSO
+
+L<LWP::UserAgent>
+L<JSON>
+
+=head1 AUTHOR
+
+Mitch McCracken E<lt>mrmccrac@gmail.comE<gt>
+
+=cut
