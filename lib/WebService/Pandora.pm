@@ -570,6 +570,39 @@ sub createStation {
     return $ret;
 }
 
+sub renameStation {
+
+    my ( $self, %args ) = @_;
+
+    my $stationToken = $args{'stationToken'};
+    my $stationName = $args{'stationName'};
+
+    # create the station.renameStation method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.renameStation',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'stationToken' => $stationToken,
+							      'stationName' => $stationName} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub transformSharedStation {
 
     my ( $self, %args ) = @_;
