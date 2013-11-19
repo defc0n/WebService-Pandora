@@ -632,6 +632,40 @@ sub getGenreStations {
     return $ret;
 }
 
+sub setQuickMix {
+
+    my ( $self, %args ) = @_;
+
+    my $stationIds = $args{'stationIds'};
+
+    # also allow quickMixStationIds alias since thats what its called in the JSON API
+    $stationIds = $args{'quickMixStationIds'} if ( !defined( $stationIds ) );
+
+    # create the user.setQuickMix method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'user.setQuickMix',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'quickMixStationIds' => $stationIds} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub error {
 
     my ( $self, $error ) = @_;
