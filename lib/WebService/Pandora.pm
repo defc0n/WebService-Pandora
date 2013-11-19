@@ -603,6 +603,41 @@ sub renameStation {
     return $ret;
 }
 
+sub shareStation {
+
+    my ( $self, %args ) = @_;
+
+    my $stationId = $args{'stationId'};
+    my $stationToken = $args{'stationToken'};
+    my $emails = $args{'emails'};
+
+    # create the station.shareStation method w/ appropriate params
+    my $method = WebService::Pandora::Method->new( name => 'station.shareStation',
+                                                   partnerAuthToken => $self->{'partnerAuthToken'},
+                                                   userAuthToken => $self->{'userAuthToken'},
+                                                   partnerId => $self->{'partnerId'},
+                                                   userId => $self->{'userId'},
+                                                   syncTime => $self->{'syncTime'},
+                                                   host => $self->{'partner'}->host(),
+                                                   ssl => 0,
+                                                   encrypt => 1,
+                                                   cryptor => $self->{'cryptor'},
+                                                   timeout => $self->{'timeout'},
+                                                   params => {'stationId' => $stationId,
+							      'stationToken' => $stationToken,
+							      'emails' => $emails} );
+
+    my $ret = $method->execute();
+
+    if ( !$ret ) {
+
+        $self->error( $method->error() );
+        return;
+    }
+
+    return $ret;
+}
+
 sub transformSharedStation {
 
     my ( $self, %args ) = @_;
