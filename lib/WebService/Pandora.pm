@@ -313,7 +313,7 @@ sub explainTrack {
     my $trackToken = $args{'trackToken'};
 
     # make sure they provided a trackToken argument
-    if ( !defined( $stationToken ) ) {
+    if ( !defined( $trackToken ) ) {
 
 	$self->error( 'A trackToken must be specified.' );
 	return;
@@ -428,7 +428,7 @@ sub addFeedback {
     my $isPositive = $args{'isPositive'};
 
     # make sure both the trackToken and isPositive arguments are provided
-    if ( !defined( $stationToken ) || !defined( $isPositive ) ) {
+    if ( !defined( $trackToken ) || !defined( $isPositive ) ) {
 
 	$self->error( 'Both trackToken and isPositive must be specified.' );
 	return;
