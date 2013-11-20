@@ -73,6 +73,95 @@ Returns a true or false value if the login was successful.  Internally, this wil
 B<auth.partherLogin> and B<auth.userLogin> API methods.  The provided partner, username, and password
 to the constructor are all used.  This must be called before any other methods will succeed.
 
+  $success = $websvc->login() or die( $websvc->error() );
+
+=head2 getBookmarks
+
+Executes the B<user.getBookmarks> method, returning a hashref containing the artists and songs that
+the user has bookmarked, or a false value on failure.  Must be called after the B<login()> method.
+
+  $result = $websvc->getBookmarks() or die( $websvc->error() );
+
+  $artists = $result->{'artists'};
+  $songs = $result->{'songs'};  
+
+=head2 getStationList
+
+Executes the B<user.getStationList> method, returning a hashref containing all of the stations of the
+user, or a false value on failure.  Must be called after the B<login()> method.
+
+  $result = $websvc->getStationList() or die( $websvc->error() );
+  $stations = $result->{'stations'};
+
+=head2 getStationListChecksum
+
+Executes the B<user.getStationListChecksum> method, returning a hashref containing a checksum value,
+or a false value on failure.  I do not know what the point of this method is.  Must be called after
+the B<login()> method.
+
+=head2 getStation
+
+Executes the B<station.getStation> method, returning a hashref containing several attributes about
+the station, identified by the provided B<stationToken> argument, or will return a false value on
+failure.  If the B<includeExtendedAttributes> option is given with a true value, additional
+attributes, such as all of the songs that have feedback in this station, will be returned as well.
+Must be called after the B<login()> method.
+
+  $result = $websvc->getStation( stationToken => "token",
+                                 includeExtendedAttributes => 1 ) or die( $websvc->error() );
+  $name = $websvc->{'stationName'};
+
+=over 4
+
+=item stationToken =E<gt> STRING [required]
+
+The unique token of the station, which can be obtained via the B<getStationList()> method.
+
+=item includeExtendedAttributes BOOLEAN [optional]
+
+Whether or not to include additional information about the station.  Defaults to false.
+
+=back
+
+=head2 search
+
+Executes the B<music.search> method, returning a hashref containing the songs and artists
+that match the provided B<searchText> argument, or a false value on failure.  Must be called
+after the B<login()> method.
+
+  $result = $websvc->search( searchText => "query" ) or die( $websvc->error() );
+
+  $songs = $result->{'songs'};
+  $artists = $result->{'artists'};
+
+=over 4
+
+=item searchText =E<gt> STRING [required]
+
+The search query to find matching songs and artists for.
+
+=back
+
+=head2 getPlaylist
+
+Executes the B<station.getPlaylist> method, returning a hashref containing the tracks and
+their URLs for the provided B<stationToken>, which can be used to download or play the song,
+or a false value on failure.  Must be called after the B<login()> method.
+
+B<You may only execute this method a certain number of times within a particular timeframe,
+or Pandora will deny the request, and this method will thus return an error.>
+
+  $result = $websvc->getPlaylist( stationToken => "token" ) or die( $websvc->error() );
+  $songs = $result->{'items'};
+
+=over 4
+
+=item stationToken =E<gt> STRING [required]
+
+The unique token of the station, which can be obtained via the B<getStationList()> method.
+
+=back
+
 =head1 SEE ALSO
 
 L<LWP::UserAgent>
