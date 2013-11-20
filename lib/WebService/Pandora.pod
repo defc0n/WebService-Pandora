@@ -125,7 +125,7 @@ Must be called after the B<login()> method.
 
 The unique token of the station, which can be obtained via the B<getStationList()> method.
 
-=item includeExtendedAttributes BOOLEAN [optional]
+=item includeExtendedAttributes =E<gt> BOOLEAN [optional]
 
 Whether or not to include additional information about the station.  Defaults to false.
 
