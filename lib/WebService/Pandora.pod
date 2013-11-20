@@ -246,6 +246,23 @@ down."
 
 =back
 
+=head2 sleepSong
+
+Executes the B<user.sleepSong> method, returning a true value if the song was
+successfully put to sleep, provided by the B<trackToken> argument, or will return a false
+value on failure.  This prevents the song from being played again for 30 days.
+
+  $result = $websvc->sleepSong( trackToken => "token" ) or die( $websvc->error() );
+
+=over 4
+
+=item trackToken =E<gt> STRING [required]
+
+The unique token of the track, which can be obtained via the B<getPlaylist()> and other
+methods.
+
+=back
+
 =head2 deleteFeedback
 
 Executes the B<station.deleteFeedback> method, returning a true value if the feedback
@@ -350,7 +367,60 @@ given.
 
 =back
 
-=head4 deleteStation
+=head2 renameStation
+
+Executes the B<station.renameStation> method, returning a hashref containing the new
+information about the station, provided by the B<stationToken> argument, or will return
+a false value on failure.  The new name of the station is provided by the B<stationName>
+option.  Must be called after the B<login()> method.
+
+  $result = $websvc->renameStation( stationToken => 'token',
+                                    stationName => 'new name' ) or die( $websvc->error() );
+  $stationName = $result->{'stationName'};
+
+=over 4
+
+=item stationToken =E<gt> STRING [required]
+
+The unique token of the station, which can be obtained via the B<getStationList()> and
+other methods.
+
+=item stationName =E<gt> STRING [required]
+
+The new name of the station.
+
+=back
+
+=head2 shareStation
+
+Executes the B<station.shareStation> method, returning a true value if the station,
+provided by the B<stationId> and B<stationToken> arguments, was shared successfully, or a
+false value on failure.  Must be called after the B<login()> method.
+
+  $result = $websvc->shareStation( stationId => 'id',
+                                   stationToken => 'token',
+                                   emails => ['foo@bar.com', 'baz@buz.com'] )
+    or die( $websvc->error() );
+
+=over 4
+
+=item stationId =E<gt> STRING [required]
+
+The unique id of the station, which can be obtained via the B<getStationList()> and other
+methods.
+
+=item stationToken =E<gt> STRING [required]
+
+The unique token of the station, which can be obtained via the B<getStationList()> and
+other methods.
+
+=item emails =E<gt> ARRAY [required]
+
+A list of email addresses to share the station with.
+
+=back
+
+=head2 deleteStation
 
 Executes the B<station.deleteStation> method, returning a true value if the station
 was successfully deleted, or a false value on failure.  Must be called after the
