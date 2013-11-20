@@ -104,6 +104,9 @@ Executes the B<user.getStationListChecksum> method, returning a hashref containi
 or a false value on failure.  I do not know what the point of this method is.  Must be called after
 the B<login()> method.
 
+  $result = $websvc->getStationListChecksum() or die( $websvc->error() );
+  $checksum = $result->{'checksum'};
+
 =head2 getStation
 
 Executes the B<station.getStation> method, returning a hashref containing several attributes about
@@ -127,6 +130,24 @@ The unique token of the station, which can be obtained via the B<getStationList(
 Whether or not to include additional information about the station.  Defaults to false.
 
 =back
+
+=head2 getGenreStations
+
+Executes the B<station.getGenreStations> method, returning a hashref containing the information
+about the predefined stations according to genre, or will return a false value on failure.  Must
+be called after the B<login()> method.
+
+  $result = $websvc->getGenreStations() or die( $websvc->error() );
+  $categories = $result->{'categories'};
+
+=head2 getGenreStationsChecksum
+
+Executes the B<station.getGenreStationsChecksum> method, returning a hashref containing a
+checksum value, or a false value on failure.  I do not know what the point of this method is.
+Must be called after the B<login()> method.
+
+  $result = $websvc->getGenreStationsChecksum() or die( $websvc->error() );
+  $checksum = $result->{'checksum'};
 
 =head2 search
 
@@ -427,6 +448,43 @@ was successfully deleted, or a false value on failure.  Must be called after the
 B<login()> method.
 
   $result = $websvc->deleteStation( stationToken => 'token' ) or die( $websvc->error() );
+
+=over 4
+
+=item stationToken =E<gt> STRING [required]
+
+The unique token of the station, which can be obtained via the B<getStationList()> and
+other methods.
+
+=back
+
+=head2 setQuickMix
+
+Executes the B<user.setQuickMix> method, returning a true value if the quick mix was
+successfully set, or a false value on failure.  Must be called after the B<login()>
+method.
+
+  $result = $websvc->setQuickMix( stationIds => ['id1', 'id2'] ) or die( $websvc->error() );
+
+=over 4
+
+=item stationIds =E<gt> ARRAY [required]
+
+A list of station ids that uniquely identify each station, which can be obtained via the
+B<getStationList()> and other methods.
+
+=back
+
+=head2 transformSharedStation
+
+Executes the B<station.transformSharedStation> method, returning a hashref containing the
+information about the station, provided by the B<stationToken> argument, or will return a
+false value on failure.  This method will convert a station that someone has shared to you
+into a station of your own that you are able to modify.  Must be called after the B<login()>
+method.
+
+  $result = $websvc->transformSharedStation( stationToken => "token" ) or die( $websvc->error() );
+  $stationId = $result->{'stationId'};
 
 =over 4
 
