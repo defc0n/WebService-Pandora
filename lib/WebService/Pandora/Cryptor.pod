@@ -41,7 +41,7 @@ API expects, using the provided B<encryption_key> specified in the constructor.
 
   $encrypted = $cryptor->encrypt( $json_str );
 
-=head2 decrypt ( ENCRYTPED ) [required]
+=head2 decrypt ( ENCRYPTED ) [required]
 
 Returns the decrypted string, given a hex encrypted Blowfish ECB string, that the
 Pandora JSON API may send.  Uses the B<decryption_key> specified in the constructor.
