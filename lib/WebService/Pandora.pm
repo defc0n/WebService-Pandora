@@ -34,8 +34,9 @@ sub new {
     }
 
     # create and store cryptor object, using the partner's encryption keys
-    my $cryptor = WebService::Pandora::Cryptor->new( decryption_key => $self->{'partner'}->decryption_key(),
-                                                     encryption_key => $self->{'partner'}->encryption_key() );
+    my $cryptor = WebService::Pandora::Cryptor->new( decryption_key => $self->{'partner'}{'decryption_key'},
+                                                     encryption_key => $self->{'partner'}{'encryption_key'} );
+
     $self->{'cryptor'} = $cryptor;
 
     bless( $self, $class );

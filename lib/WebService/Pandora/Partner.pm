@@ -6,6 +6,8 @@ use warnings;
 use WebService::Pandora::Method;
 use Data::Dumper;
 
+use constant WEBSERVICE_VERSION => '5';
+
 ### constructor ###
 
 sub new {
@@ -17,7 +19,7 @@ sub new {
     
     my $self = {'username' => undef,
                 'password' => undef,
-                'device_id' => undef,
+                'deviceModel' => undef,
 		'decryption_key' => undef,
 		'encryption_key' => undef,
 		'host' => undef,
@@ -29,60 +31,6 @@ sub new {
 }
 
 ### getters/setters ###
-
-sub username {
-
-    my ( $self, $username ) = @_;
-
-    $self->{'username'} = $username if ( defined( $username ) );
-
-    return $self->{'username'};
-}
-
-sub password {
-
-    my ( $self, $password ) = @_;
-
-    $self->{'password'} = $password if ( defined( $password ) );
-
-    return $self->{'password'};
-}
-
-sub device_id {
-
-    my ( $self, $device_id ) = @_;
-
-    $self->{'device_id'} = $device_id if ( defined( $device_id ) );
-
-    return $self->{'device_id'};
-}
-
-sub decryption_key {
-
-    my ( $self, $decryption_key ) = @_;
-
-    $self->{'decryption_key'} = $decryption_key if ( defined( $decryption_key ) );
-
-    return $self->{'decryption_key'};
-}
-
-sub encryption_key {
-
-    my ( $self, $encryption_key ) = @_;
-
-    $self->{'encryption_key'} = $encryption_key if ( defined( $encryption_key ) );
-
-    return $self->{'encryption_key'};
-}
-
-sub host {
-
-    my ( $self, $host ) = @_;
-
-    $self->{'host'} = $host if ( defined( $host ) );
-
-    return $self->{'host'};
-}
 
 sub error {
 
@@ -103,11 +51,11 @@ sub login {
     my $method = WebService::Pandora::Method->new( name => 'auth.partnerLogin',
 						   encrypt => 0,
 						   ssl => 1,
-						   host => $self->host(),
-						   params => {'username' => $self->username(),
-							      'password' => $self->password(),
-							      'deviceModel' => $self->device_id(),
-							      'version' => '5'} );
+						   host => $self->{'host'},
+						   params => {'username' => $self->{'username'},
+							      'password' => $self->{'password'},
+							      'deviceModel' => $self->{'deviceModel'},
+							      'version' => WEBSERVICE_VERSION} );
 							      
     my $result = $method->execute();
 

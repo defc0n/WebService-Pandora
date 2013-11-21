@@ -3,7 +3,9 @@ lib/WebService/Pandora.pod
 lib/WebService/Pandora/Cryptor.pm
 lib/WebService/Pandora/Cryptor.pod
 lib/WebService/Pandora/Method.pm
+lib/WebService/Pandora/Method.pod
 lib/WebService/Pandora/Partner.pm
+lib/WebService/Pandora/Partner.pod
 lib/WebService/Pandora/Partner/AIR.pm
 lib/WebService/Pandora/Partner/Android.pm
 lib/WebService/Pandora/Partner/iOS.pm
