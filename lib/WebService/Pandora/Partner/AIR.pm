@@ -14,7 +14,7 @@ sub new {
 
     my $self = $class->SUPER::new( username => 'pandora one',
 				   password => 'TVCKIBGS9AO9TSYLNNFUML0743LH82D',
-				   device_id => 'D01',
+				   deviceModel => 'D01',
 				   decryption_key => 'U#IO$RZPAB%VX2',
 				   encryption_key => '2%3WCL*JU$MP]4',
 				   host => 'internal-tuner.pandora.com' );

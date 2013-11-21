@@ -55,7 +55,7 @@ sub login {
 						   params => {'username' => $self->{'username'},
 							      'password' => $self->{'password'},
 							      'deviceModel' => $self->{'deviceModel'},
-							      'version' => WEBSERVICE_VERSION} );
+							      'version' => "5"} );
 							      
     my $result = $method->execute();
 

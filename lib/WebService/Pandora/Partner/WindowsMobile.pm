@@ -14,7 +14,7 @@ sub new {
 
     my $self = $class->SUPER::new( username => 'winmo',
 				   password => 'ED227E10a628EB0E8Pm825Dw7114AC39',
-				   device_id => 'VERIZON_MOTOQ9C',
+				   deviceModel => 'VERIZON_MOTOQ9C',
 				   decryption_key => '7D671jt0C5E5d251',
 				   encryption_key => 'v93C8C2s12E0EBD',
 				   host => 'tuner.pandora.com' );
