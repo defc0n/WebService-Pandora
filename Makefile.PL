@@ -5,6 +5,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile( NAME => 'WebService::Pandora',
                VERSION_FROM => 'lib/WebService/Pandora.pm',
+	       ABSTRACT_FROM => 'lib/WebService/Pandora.pod',
                AUTHOR => ['Mitch McCracken <mrmccrac@gmail.com>'],
                PREREQ_PM => {'JSON' => 0,
 			     'Crypt::ECB' => 0,
