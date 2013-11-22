@@ -504,4 +504,12 @@ L<WebService::Pandora::Partner>
 
 Mitch McCracken E<lt>mrmccrac@gmail.comE<gt>
 
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2013 by Mitch McCracken.
+
+This is free software, licensed under:
+
+  The Artistic License 2.0 (GPL Compatible)
+
 =cut

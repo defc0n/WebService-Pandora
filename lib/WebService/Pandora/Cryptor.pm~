@@ -1,0 +1,21 @@
+package WebService::Pandora::Cryptor;
+
+use strict;
+use warnings;
+
+use Crypt::ECB;
+use Data::Dumper;
+
+sub new {
+
+    my $caller = shift;
+
+    my $class = ref( $caller );
+    $class = $caller if ( !$class );
+
+    my $self = {'encryption_key' => undef,
+                'decryption_key' => undef,
+                @_};
+
+    bless( $self, $class );
+1;
