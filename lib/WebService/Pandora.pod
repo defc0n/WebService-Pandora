@@ -497,8 +497,8 @@ other methods.
 
 =head1 SEE ALSO
 
-L<LWP::UserAgent>
-L<JSON>
+L<WebService::Pandora::Method>
+L<WebService::Pandora::Partner>
 
 =head1 AUTHOR
 
