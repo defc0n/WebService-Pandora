@@ -48,6 +48,10 @@ Pandora JSON API may send.  Uses the B<decryption_key> specified in the construc
 
   $decrypted = $cryptor->decrypt( $encrypted );
 
+=head2 error
+
+Returns a string containing a message about why the last method call failed.
+
 =head1 SEE ALSO
 
 L<WebService::Pandora>

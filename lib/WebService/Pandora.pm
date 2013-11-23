@@ -50,6 +50,13 @@ sub login {
 
     my ( $self ) = @_;
 
+    # make sure both username and password were given
+    if ( !defined( $self->{'username'} ) || !defined( $self->{'password'} ) ) {
+
+        $self->error( 'Both username and password must be given in the constructor.' );
+        return;
+    }
+
     # first, do the partner login
     my $ret = $self->{'partner'}->login();
 
@@ -66,8 +73,25 @@ sub login {
     $self->{'partnerId'} = $ret->{'partnerId'};
     $self->{'syncTime'} = $ret->{'syncTime'};
 
+    # throw an error if for some reason we didn't get them
+    if ( !defined( $self->{'partnerAuthToken'} ) ||
+         !defined( $self->{'partnerId'} ) ||
+         !defined( $self->{'syncTime'} ) ) {
+
+        $self->error( 'Either partnerAuthToken, partnerId, or syncTime was not returned!' );
+        return;
+    }
+
     # handle special case of decrypting the sync time
     $self->{'syncTime'} = $self->{'cryptor'}->decrypt( $self->{'syncTime'} );
+
+    # detect error decrypting
+    if ( !defined( $self->{'syncTime'} ) ) {
+
+        $self->error( "An error occurred decrypting the syncTime: " . $self->{'cryptor'}->error() );
+        return;
+    }
+
     $self->{'syncTime'} = substr( $self->{'syncTime'}, 4 );
 
     # now create and execute the method for the user login request
@@ -97,6 +121,13 @@ sub login {
     # store even more attributes we'll need later
     $self->{'userId'} = $ret->{'userId'};
     $self->{'userAuthToken'} = $ret->{'userAuthToken'};
+
+    # make sure we actually got them
+    if ( !defined( $self->{'userId'} ) || !defined( $self->{'userAuthToken'} ) ) {
+
+        $self->error( 'Either userId or userAuthToken was not returned!' );
+        return;
+    }
 
     # success
     return 1;
@@ -839,7 +870,7 @@ sub sleepSong {
 
 sub getGenreStations {
 
-    my ( $self, %args ) = @_;
+    my ( $self ) = @_;
 
     # create the station.getGenreStations method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.getGenreStations',
@@ -868,7 +899,7 @@ sub getGenreStations {
 
 sub getGenreStationsChecksum {
 
-    my ( $self, %args ) = @_;
+    my ( $self ) = @_;
 
     # create the station.getGenreStationsChecksum method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'station.getGenreStationsChecksum',
@@ -938,7 +969,7 @@ sub setQuickMix {
 
 sub canSubscribe {
 
-    my ( $self, %args ) = @_;
+    my ( $self ) = @_;
 
     # create the user.canSubscribe method w/ appropriate params
     my $method = WebService::Pandora::Method->new( name => 'user.canSubscribe',

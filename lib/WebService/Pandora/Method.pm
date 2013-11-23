@@ -58,6 +58,13 @@ sub new {
     if ( $self->{'encrypt'} ) {
 
         $json_data = $self->{'cryptor'}->encrypt( $json_data );
+
+        # detect error decrypting
+        if ( !defined( $json_data ) ) {
+
+            $self->error( 'An error occurred encrypting our JSON data: ' . $self->{'cryptor'}->error() );
+            return;
+        }
     }
 
     # http or https?
