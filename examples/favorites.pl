@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 ####################################################################
-### WebService::Pandora - favorite_songs.pl                      ###
+### WebService::Pandora - favorites.pl                           ###
 ###                                                              ###
 ### This script will iterate through all of the user's stations, ###
 ### getting the details of the station and grab all of the       ###

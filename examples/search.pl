@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 ####################################################################
-### WebService::Pandora - search_songs.pl                        ###
+### WebService::Pandora - search.pl                              ###
 ###                                                              ###
 ### This script will iterate through all of the song and artist  ###
 ### results of a particular search string, listing the best      ###
