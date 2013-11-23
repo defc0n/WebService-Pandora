@@ -1,4 +1,5 @@
 Changes
+examples/favorite_songs.pl
 lib/WebService/Pandora.pm
 lib/WebService/Pandora.pod
 lib/WebService/Pandora/Cryptor.pm
