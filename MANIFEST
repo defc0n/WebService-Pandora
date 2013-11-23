@@ -21,6 +21,7 @@ README
 t/cryptor.t
 t/login.t
 t/method.t
+t/partner.t
 t/pod.t
 t/pod_coverage.t
 
