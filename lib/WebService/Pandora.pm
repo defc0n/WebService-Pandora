@@ -10,7 +10,7 @@ use WebService::Pandora::Partner::iOS;
 use JSON;
 use Data::Dumper;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 ### constructor ###
 
@@ -201,8 +201,8 @@ sub getStation {
     # make sure they provided a stationToken argument
     if ( !defined( $stationToken ) ) {
 
-	$self->error( 'A stationToken must be specified.' );
-	return;
+        $self->error( 'A stationToken must be specified.' );
+        return;
     }
 
     # create the user.getStation method w/ appropriate params
@@ -240,8 +240,8 @@ sub search {
     # make sure they provided a searchText argument
     if ( !defined( $searchText ) ) {
 
-	$self->error( 'A searchText must be specified.' );
-	return;
+        $self->error( 'A searchText must be specified.' );
+        return;
     }
 
     # create the music.search method w/ appropriate params
@@ -278,8 +278,8 @@ sub getPlaylist {
     # make sure they provided a stationToken argument
     if ( !defined( $stationToken ) ) {
 
-	$self->error( 'A stationToken must be specified.' );
-	return;
+        $self->error( 'A stationToken must be specified.' );
+        return;
     }
 
     # create the station.getPlaylist method w/ appropriate params
@@ -316,8 +316,8 @@ sub explainTrack {
     # make sure they provided a trackToken argument
     if ( !defined( $trackToken ) ) {
 
-	$self->error( 'A trackToken must be specified.' );
-	return;
+        $self->error( 'A trackToken must be specified.' );
+        return;
     }
 
     # create the track.explainTrack method w/ appropriate params
@@ -354,8 +354,8 @@ sub addArtistBookmark {
     # make sure they provided a trackToken argument
     if ( !defined( $trackToken ) ) {
 
-	$self->error( 'A trackToken must be specified.' );
-	return;
+        $self->error( 'A trackToken must be specified.' );
+        return;
     }
 
     # create the bookmark.addArtistBookmark method w/ appropriate params
@@ -392,8 +392,8 @@ sub addSongBookmark {
     # make sure they provided a trackToken argument
     if ( !defined( $trackToken ) ) {
 
-	$self->error( 'A trackToken must be specified.' );
-	return;
+        $self->error( 'A trackToken must be specified.' );
+        return;
     }
 
     # create the bookmark.addSongBookmark method w/ appropriate params
@@ -431,8 +431,8 @@ sub addFeedback {
     # make sure both the trackToken and isPositive arguments are provided
     if ( !defined( $trackToken ) || !defined( $isPositive ) ) {
 
-	$self->error( 'Both trackToken and isPositive must be specified.' );
-	return;
+        $self->error( 'Both trackToken and isPositive must be specified.' );
+        return;
     }
 
     $isPositive = ( $isPositive ) ? JSON::true() : JSON::false();
@@ -472,8 +472,8 @@ sub deleteFeedback {
     # make sure they provided a feedbackId argument
     if ( !defined( $feedbackId ) ) {
 
-	$self->error( 'A feedbackId must be specified.' );
-	return;
+        $self->error( 'A feedbackId must be specified.' );
+        return;
     }
 
     # create the station.deleteFeedback method w/ appropriate params
@@ -511,8 +511,8 @@ sub addMusic {
     # make sure both the musicToken and stationToken arguments are provided
     if ( !defined( $musicToken ) || !defined( $stationToken ) ) {
 
-	$self->error( 'Both musicToken and stationToken must be specified.' );
-	return;
+        $self->error( 'Both musicToken and stationToken must be specified.' );
+        return;
     }
 
     # create the station.addMusic method w/ appropriate params
@@ -550,8 +550,8 @@ sub deleteMusic {
     # make sure they provided a seedId argument
     if ( !defined( $seedId ) ) {
 
-	$self->error( 'A seedId must be specified.' );
-	return;
+        $self->error( 'A seedId must be specified.' );
+        return;
     }
 
     # create the station.deleteMusic method w/ appropriate params
@@ -651,8 +651,8 @@ sub renameStation {
     # make sure both the stationToken and stationName arguments are provided
     if ( !defined( $stationToken ) || !defined( $stationName ) ) {
 
-	$self->error( 'Both stationToken and stationName must be specified.' );
-	return;
+        $self->error( 'Both stationToken and stationName must be specified.' );
+        return;
     }
 
     # create the station.renameStation method w/ appropriate params
@@ -692,8 +692,8 @@ sub shareStation {
     # make sure both the stationId, stationToken, and emails arguments are provided
     if ( !defined( $stationId ) || !defined( $stationToken ) || !defined( $emails ) ) {
 
-	$self->error( 'The stationId, stationToken, and emails must be specified.' );
-	return;
+        $self->error( 'The stationId, stationToken, and emails must be specified.' );
+        return;
     }
 
     # create the station.shareStation method w/ appropriate params
@@ -732,8 +732,8 @@ sub transformSharedStation {
     # make sure they provided a stationToken argument
     if ( !defined( $stationToken ) ) {
 
-	$self->error( 'A stationToken must be specified.' );
-	return;
+        $self->error( 'A stationToken must be specified.' );
+        return;
     }
 
     # create the station.transformSharedStation method w/ appropriate params
@@ -770,8 +770,8 @@ sub deleteStation {
     # make sure they provided a stationToken argument
     if ( !defined( $stationToken ) ) {
 
-	$self->error( 'A stationToken must be specified.' );
-	return;
+        $self->error( 'A stationToken must be specified.' );
+        return;
     }
 
     # create the station.deleteStation method w/ appropriate params
@@ -808,8 +808,8 @@ sub sleepSong {
     # make sure they provided a trackToken argument
     if ( !defined( $trackToken ) ) {
 
-	$self->error( 'A trackToken must be specified.' );
-	return;
+        $self->error( 'A trackToken must be specified.' );
+        return;
     }
 
     # create the user.sleepSong method w/ appropriate params
@@ -907,8 +907,8 @@ sub setQuickMix {
     # make sure they provided a stationIds argument
     if ( !defined( $stationIds ) ) {
 
-	$self->error( 'stationIds must be specified.' );
-	return;
+        $self->error( 'stationIds must be specified.' );
+        return;
     }
 
     # create the user.setQuickMix method w/ appropriate params
