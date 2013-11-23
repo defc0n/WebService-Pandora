@@ -34,6 +34,26 @@ sub new {
 
     bless( $self, $class );
 
+    # create and store user agent object
+    $self->{'ua'} = LWP::UserAgent->new( timeout => $self->{'timeout'} );
+
+    # create and store json object
+    $self->{'json'} = JSON->new();
+
+    return $self;
+}
+
+sub execute {
+
+    my ( $self ) = @_;
+
+    # make sure both name and host were given
+    if ( !defined( $self->{'name'} ) || !defined( $self->{'host'} ) ) {
+
+        $self->error( 'Both the name and host must be provided to the constructor.' );
+        return;
+    }
+
     # craft the json data accordingly
     my $json_data = {};
 
@@ -51,7 +71,6 @@ sub new {
     $json_data = {%$json_data, %{$self->{'params'}}};
 
     # encode it to json
-    $self->{'json'} = JSON->new();
     $json_data = $self->{'json'}->encode( $json_data );
 
     # encrypt it, if needed
@@ -112,19 +131,8 @@ sub new {
     # json data is the POST content
     $request->content( $json_data );
 
-    $self->{'request'} = $request;
-
-    # create and store user agent object
-    $self->{'ua'} = LWP::UserAgent->new( timeout => $self->{'timeout'} );
-
-    return $self;
-}
-
-sub execute {
-
-    my ( $self ) = @_;
-
-    my $response = $self->{'ua'}->request( $self->{'request'} );
+    # issue the HTTP request
+    my $response = $self->{'ua'}->request( $request );
 
     # handle request error
     if ( !$response->is_success() ) {
@@ -133,10 +141,11 @@ sub execute {
         return;
     }
 
+    # decode the raw content of the response
     my $content = $response->decoded_content();
 
-    # decode JSON content
-    my $json_data = $self->{'json'}->decode( $content );
+    # decode the JSON content
+    $json_data = $self->{'json'}->decode( $content );
 
     # handle pandora error
     if ( $json_data->{'stat'} ne 'ok' ) {
