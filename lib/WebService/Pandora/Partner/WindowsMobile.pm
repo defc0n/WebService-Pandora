@@ -5,6 +5,8 @@ use warnings;
 
 use base 'WebService::Pandora::Partner';
 
+### constructor ###
+
 sub new {
 
     my $caller = shift;

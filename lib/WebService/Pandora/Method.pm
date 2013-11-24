@@ -11,6 +11,8 @@ use HTTP::Request;
 use LWP::UserAgent;
 use Data::Dumper;
 
+### constructor ###
+
 sub new {
 
     my $caller = shift;
@@ -42,6 +44,19 @@ sub new {
 
     return $self;
 }
+
+### getters/setters ###
+
+sub error {
+
+    my ( $self, $error ) = @_;
+
+    $self->{'error'} = $error if ( defined( $error ) );
+
+    return $self->{'error'};
+}
+
+### public methods ###
 
 sub execute {
 
@@ -159,15 +174,6 @@ sub execute {
 
     # otherwise just return a true value to indicate success
     return 1;
-}
-
-sub error {
-
-    my ( $self, $error ) = @_;
-
-    $self->{'error'} = $error if ( defined( $error ) );
-
-    return $self->{'error'};
 }
 
 1;

@@ -44,6 +44,17 @@ sub new {
     return $self;
 }
 
+### getters/setters ###
+
+sub error {
+
+    my ( $self, $error ) = @_;
+
+    $self->{'error'} = $error if ( defined( $error ) );
+
+    return $self->{'error'};
+}
+
 ### public methods ###
 
 sub login {
@@ -994,15 +1005,6 @@ sub canSubscribe {
     }
 
     return $ret;
-}
-
-sub error {
-
-    my ( $self, $error ) = @_;
-
-    $self->{'error'} = $error if ( defined( $error ) );
-
-    return $self->{'error'};
 }
 
 1;

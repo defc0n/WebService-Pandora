@@ -6,6 +6,8 @@ use warnings;
 use Crypt::ECB;
 use Data::Dumper;
 
+### constructor ###
+
 sub new {
 
     my $caller = shift;
@@ -28,6 +30,19 @@ sub new {
 
     return $self;
 }
+
+### getters/setters ###
+
+sub error {
+
+    my ( $self, $error ) = @_;
+
+    $self->{'error'} = $error if ( defined( $error ) );
+
+    return $self->{'error'};
+}
+
+### public methods ###
 
 sub encrypt {
 
@@ -77,15 +92,6 @@ sub decrypt {
 
     # return the decrypted string
     return $self->{'crypt'}->decrypt_hex( $data );
-}
-
-sub error {
-
-    my ( $self, $error ) = @_;
-
-    $self->{'error'} = $error if ( defined( $error ) );
-
-    return $self->{'error'};
 }
 
 1;
