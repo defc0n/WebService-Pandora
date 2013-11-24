@@ -16,6 +16,7 @@ WriteMakefile( NAME => 'WebService::Pandora',
                              'Data::Dumper' => 0},
                BUILD_REQUIRES => {'Test::More' => 0,
                                   'Test::Pod' => 0,
-                                  'Test::Pod::Coverage' => 0},
+                                  'Test::Pod::Coverage' => 0,
+                                  'Test::Perl::Critic' => 0},
                MIN_PERL_VERSION => '5.6.0',
                LICENSE => 'artistic_2' );
