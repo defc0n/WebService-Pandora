@@ -1,4 +1,12 @@
 Revision history for Perl module WebService::Pandora
 
+0.2 2013-11-23
+ - Method.pm does most of the work in execute() now instead of new()
+ - Added better error handling
+ - More unit tests
+ - Documentation fixes
+ - Added example scripts
+ - Makefile.PL fixes
+
 0.1 2013-11-21
  - First Release!
