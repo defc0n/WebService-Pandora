@@ -16,6 +16,8 @@ if ( $@ ) {
    plan( skip_all => "Test::Pod::Coverage required" );
 }
 
+Test::Pod::Coverage->import();
+
 pod_coverage_ok( 'WebService::Pandora' );
 pod_coverage_ok( 'WebService::Pandora::Cryptor' );
 pod_coverage_ok( 'WebService::Pandora::Method' );

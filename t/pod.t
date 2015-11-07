@@ -19,4 +19,5 @@ if ( $@ ) {
    plan( skip_all => "Test::Pod required" );
 }
 
+Test::Pod->import();
 all_pod_files_ok();
