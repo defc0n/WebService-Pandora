@@ -1,5 +1,20 @@
 use Test::More;
-use Test::Pod::Coverage;
+
+# rt108500
+if ( !$ENV{'RELEASE_TESTING'} ) {
+
+   plan( skip_all => "RELEASE_TESTING not set in environment" );
+}
+
+eval {
+
+     require Test::Pod::Coverage;
+};
+
+if ( $@ ) {
+
+   plan( skip_all => "Test::Pod::Coverage required" );
+}
 
 pod_coverage_ok( 'WebService::Pandora' );
 pod_coverage_ok( 'WebService::Pandora::Cryptor' );
