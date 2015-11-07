@@ -19,4 +19,5 @@ if ( $@ ) {
    plan( skip_all => "Test::Perl::Critic required" );
 }
 
+Test::Perl::Critic->import();
 all_critic_ok();
