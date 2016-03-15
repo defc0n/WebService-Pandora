@@ -25,6 +25,7 @@ sub new {
 
     $crypt->padding( 'standard' );
     $crypt->cipher( 'Blowfish' );
+
     $self->{'crypt'} = $crypt;
 
     return $self;
@@ -63,7 +64,7 @@ sub encrypt {
 
     # give the crypt object the encryption key
     $self->{'crypt'}->key( $self->{'encryption_key'} );
-    
+
     # return the hex-encrypted form
     return $self->{'crypt'}->encrypt_hex( $data );
 }

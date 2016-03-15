@@ -10,7 +10,7 @@ use WebService::Pandora::Partner::iOS;
 use JSON;
 use Data::Dumper;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 ### constructor ###
 
