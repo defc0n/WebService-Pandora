@@ -23,7 +23,7 @@ sub new {
 
     my $crypt = Crypt::ECB->new();
 
-    $crypt->padding( PADDING_AUTO );
+    $crypt->padding( 'standard' );
     $crypt->cipher( 'Blowfish' );
 
     $self->{'crypt'} = $crypt;
@@ -90,7 +90,7 @@ sub decrypt {
     # give the crypt object the decryption key
     $self->{'crypt'}->key( $self->{'decryption_key'} );
 
-    # return the decrypted string
+    # return the hex-encrypted form
     return $self->{'crypt'}->decrypt_hex( $data );
 }
 
