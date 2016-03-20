@@ -44,8 +44,8 @@ WebService::Pandora - Pandora WebService API
 =head1 DESCRIPTION
 
 B<WebService::Pandora> is a module to communicate with the Pandora (L<http://www.pandora.com>) JSON API.
-The API is not officially published, and has a few oddities, but was reverse engineered and documented at
-L<http://pan-do-ra-api.wikia.com/wiki/Pan-do-ra_API_Wiki>.
+The API is not officially published, and has a few oddities, but has been reverse engineered and documented at
+L<https://6xq.net/pandora-apidoc/>.
 
 =head1 CONSTRUCTOR
 
